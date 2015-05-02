@@ -35,7 +35,7 @@ class CaptureManager(object):
     @property
     def frame(self):
         if self._enteredFrame and self._frame is None:
-            _, self._frame = self._capture.retrieve(channel = self.channel)
+            _ , self._frame = self._capture.retrieve()
             return self._frame
 
     @property
@@ -118,12 +118,10 @@ class CaptureManager(object):
                     return
                 else:
                     fps = self._fpsEstimate
-                    width = cv2.CAP_PROP_FRAME_WIDTH
-                    height = cv2.CAP_PROP_FRAME_HEIGHT
-                    size = (int(self._capture.get(width)),
-                        int(self._capture.get(height)))
+                    size = (int(self._capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                        int(self._capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
                     self._videoWriter = cv2.VideoWriter(
-                        self._videoFilename, self._videoEncoding
+                        self._videoFilename, self._videoEncoding,
                         fps, size)
                     self._videoWriter.write(self,_frame)
 
@@ -140,6 +138,10 @@ class WindowManager(object):
     @property
     def isWindowCreated(self):
         return self._isWindowCreated
+
+    @property
+    def windowName(self):
+        return self._windowName
 
     def createWindow(self):
         cv2.namedWindow(self._windowName)
@@ -160,5 +162,3 @@ class WindowManager(object):
             self.keypressCallback(keycode)
 
             # Augement this with mousecallback functionality later
-
-    
