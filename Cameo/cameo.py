@@ -9,10 +9,7 @@ class Cameo(object):
     def __init__(self):
         self._windowManager = WindowManager('Cameo', self.onKeypress)
         self._captureManager = CaptureManager(cv2.VideoCapture(0),
-                    self._windowManager, True)
-        self.shotIndex = 0;
-        self.castIndex = 0;
-
+                    self._windowManager, False)
     def run(self):
         """ Run the main loop """
 
@@ -23,14 +20,22 @@ class Cameo(object):
                 "tab     --> Start/stop recording a screencast",
                 "escape  --> Quit"))
 
-        while self._windowManager.isWindowCreated:
+
+
+        while self._windowManager.isWindowCreated and self._captureManager._framesElapsed < 50:
+            print("Cameo: Entering Frame...")
             self._captureManager.enterFrame()
+            print("Cameo: Retrieving Frame...")
             frame = self._captureManager.frame
-
-            # TODO Filter the frame!!
-
+            print("Cameo: Exiting Frame...")
             self._captureManager.exitFrame()
             self._windowManager.processEvents()
+
+    def stop(self):
+        print("[CAMEO] closing all processes")
+        self._captureManager._capture.release()
+        self._windowManager.destroyWindow()
+
 
     def onKeypress(self, keycode):
 
@@ -42,18 +47,18 @@ class Cameo(object):
         """
 
         if keycode == 32: # Space
-            self._captureManager.writeImage('screenshot('+ str(self.shotIndex) + ').png');
-            self.shotIndex += 1
+            self._captureManager.writeImage('screenshot.png');
+            print("Writing image to file....")
         elif keycode == 9: # Tab
             if not self._captureManager.isWritingVideo:
-                self._captureManager.startWritingVideo('screencast(' + str(self.castIndex) + ').avi')
-                self.castIndex += 1
+                self._captureManager.startWritingVideo('screencast.avi')
+                print("Writing video to file...")
             else:
                 self._captureManager.stopWritingVideo()
+                print("Stopped writing video")
         elif keycode == 27: # escape
+            print("Closing Window...")
             self._windowManager.destroyWindow()
-
 
 if __name__ == '__main__':
     cameo = Cameo()
-    cameo.run()
