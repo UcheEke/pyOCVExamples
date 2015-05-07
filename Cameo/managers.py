@@ -36,7 +36,7 @@ class CaptureManager(object):
     def frame(self):
         if self._enteredFrame and self._frame is None:
             _ , self._frame = self._capture.retrieve()
-            return self._frame
+        return self._frame
 
     @property
     def isWritingImage(self):
@@ -62,7 +62,7 @@ class CaptureManager(object):
 
         # Check whether any grabbed frame is retrievable
         # the getter may retrieve and cache the frame
-        if self._frame is None:
+        if self.frame is None:
             print("[CM] I don't have a frame to work on!")
             self._enteredFrame = False
             return

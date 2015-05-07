@@ -2,6 +2,7 @@
 
 import cv2
 from managers import WindowManager, CaptureManager
+import filters
 
 
 class Cameo(object):
@@ -9,7 +10,7 @@ class Cameo(object):
     def __init__(self):
         self._windowManager = WindowManager('Cameo', self.onKeypress)
         self._captureManager = CaptureManager(cv2.VideoCapture(0),
-                    self._windowManager, False)
+                    self._windowManager, True)
     def run(self):
         """ Run the main loop """
 
@@ -23,11 +24,10 @@ class Cameo(object):
 
 
         while self._windowManager.isWindowCreated and self._captureManager._framesElapsed < 50:
-            print("Cameo: Entering Frame...")
             self._captureManager.enterFrame()
-            print("Cameo: Retrieving Frame...")
             frame = self._captureManager.frame
-            print("Cameo: Exiting Frame...")
+            # Add filtering to the frame
+            filters.recolorRGV(frame,frame)
             self._captureManager.exitFrame()
             self._windowManager.processEvents()
 
