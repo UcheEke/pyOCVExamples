@@ -27,7 +27,7 @@ class Cameo(object):
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
             # Add filtering to the frame
-            filters.recolorRGV(frame,frame)
+            filters.strokeEdges(frame,frame)
             self._captureManager.exitFrame()
             self._windowManager.processEvents()
 
