@@ -163,3 +163,59 @@ class BGRCrossProcessCurveFilter(BGRCurveFilter):
         gPoints = [(0,0),(56,39),(208,226),(255,255)],
         rPoints = [(0,0),(56,22),(211,255),(255,255)],
         dtype = dtype)
+
+class VConvolutionFilter(object):
+    """ A filter that applies a convolution to V (or all of BGR) """
+
+    def __init__(self, kernel):
+        """ The kernel is a numpy array of odd length whose center element represents the
+            pixel of interest. It is altered according to the weights of all the surrounding
+            elements """
+        self._kernel = kernel
+
+    def apply(self, src, dst):
+        """ Apply the given filter with a BGR or Grayscale src/destination """
+        cv2.filter2D(src,-1, self._kernel, dst)
+
+class SharpenFilter(VConvolutionFilter):
+    """ A specific case of VConvolution Filter where the kernel's center output is 9x the value of
+        its input -1 from the value of each of the surrounding pixels. This amplifies contrasts between
+        differing colors in the src material. """
+
+    def __init__(self):
+        kernel = numpy.array([[-1,-1,-1],
+                              [-1, 9,-1],
+                              [-1,-1,-1]])
+        VConvolutionFilter.__init__(self,kernel)
+
+class FindEdgesFilter(VConvolutionFilter):
+    """ The sum of the weights in this particular filter is 0. This turns edges white and non edges black
+        """
+    def __init__(self):
+        kernel = numpy.array([[-1,-1,-1],
+                              [-1, 8,-1],
+                              [-1,-1,-1]])
+        VConvolutionFilter.__init__(self, kernel)
+
+class BlurFilter(VConvolutionFilter):
+    """ For a blur effect, the weights should sum to one and should be positive throughout the neighbourhood
+        """
+    def __init__(self):
+        """ Define a blur kernel with a 2-pixel radius """
+        kernel = numpy.array([[0.04,0.04,0.04,0.04,0.04],
+                              [0.04,0.04,0.04,0.04,0.04],
+                              [0.04,0.04,0.04,0.04,0.04],
+                              [0.04,0.04,0.04,0.04,0.04],
+                              [0.04,0.04,0.04,0.04,0.04]])
+        VConvolutionFilter.__init__(self, kernel)
+
+# Removing the symmetry from the kernels produces some nice effects
+
+class EmbossFilter(VConvolutionFilter):
+    """ An emboss filter with a 1-pixel radius """
+
+    def __init__(self):
+        kernel = numpy.array([[-2,-1, 0],
+                              [-1, 8, 1],
+                              [ 0, 1, 2]])
+        VConvolutionFilter.__init__(self, kernel)
